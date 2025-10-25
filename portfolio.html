@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ankitha D — Interactive Portfolio</title>
+  <style>
+    :root {
+      --accent: #e392ad;
+      --muted: #9ca3af;
+      --bg: #0a0e27;
+      --glass: rgba(255,255,255,0.06);
+      --glass-2: rgba(255,255,255,0.04);
+      --card-radius: 18px;
+      --transition: 400ms cubic-bezier(.2,.9,.3,1);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%; margin: 0;
+      font-family: Inter, Poppins, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(180deg,#e1b6f7 0%, #ffaeb3 100%);
+      color: #010509;
+    }
+    .app {
+      position:relative; min-height:100vh; overflow:hidden;
+    }
+    .hero {
+  position: fixed;
+  inset: 0;
+  display: flex;           /* changed from grid to flex */
+  align-items: center;     /* vertical centering */
+  justify-content: center; /* horizontal centering */
+  transition: all var(--transition);
+  z-index: 5;
+  background: linear-gradient(135deg, #f3dbff 0%, #fdc9cc 100%);
+}
+
+    .hero::after { content: ""; display: block; }
+
+    .hero-inner {
+      position:relative; width:180vmin; height:80vmin;
+      border-radius:12px; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      z-index:6; transition:all 420ms ease;
+      box-shadow:0 20px 50px rgba(6,8,20,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+      background:linear-gradient(135deg, rgba(196,113,237,0.4) 0%, rgba(246,79,89,0.4) 100%);
+    }
+    .hero:hover .hero-inner {
+  width:90vmin; height:90vmin; border-radius:50%;
+  transform:translateY(-1vmin) ;
+}
+    .hero.opened {
+  background-color: #f3dbff;
+  transition: background 0.5s ease;
+}
+
+    
+    .profile-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;padding: 50px;
+    }
+   
+    .profile-image {
+      align-items: center;
+      justify-content: center;
+      width: 24vmin;
+      height: 24vmin;
+      border-radius: 50%;
+      object-fit: cover; margin: 0 auto;
+      display: block;
+      border: 4px solid #fff;
+      box-shadow: 0 0 25px rgba(255,255,255,0.3);
+      transition: all 0.4s ease;
+    }
+
+    .hero:hover .profile-image { width:32vmin; height:32vmin; align-items: center; justify-items: center; }
+        .profile-name {
+      font-size: 3vmin;
+      font-weight: 700;
+      text-align: center;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: all 0.4s ease; 
+    }
+    
+    .hero:hover .profile-name { font-size:2.4vmin; }
+    .circle-menu { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; }
+    .menu-items { position:absolute; width:100%; height:100%; display:block; }
+    .menu-button {
+      position:absolute; left:50%; top:50%;
+      transform-origin:center center; pointer-events:auto;
+      display:flex; align-items:center; justify-content:center;
+      width:5.6rem; height:5.6rem; border-radius:50%;
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter:blur(3px); color:var(--accent);
+      border:1px solid rgba(255,255,255,0.06);
+      cursor:pointer; transition:all 320ms ease; color: #b40660;
+      font-weight:600;text-shadow: 0 0 6px rgba(216, 134, 186, 0.978);
+    }
+    .menu-button[data-i="0"]{transform:translate(-50%,-50%) rotate(0deg) translateY(-28vmin) rotate(0deg);}
+    .menu-button[data-i="1"]{transform:translate(-50%,-50%) rotate(51deg) translateY(-28vmin) rotate(-51deg);}
+    .menu-button[data-i="2"]{transform:translate(-50%,-50%) rotate(102deg) translateY(-28vmin) rotate(-102deg);}
+    .menu-button[data-i="3"]{transform:translate(-50%,-50%) rotate(153deg) translateY(-28vmin) rotate(-153deg);}
+    .menu-button[data-i="4"]{transform:translate(-50%,-50%) rotate(-153deg) translateY(-28vmin) rotate(153deg);}
+    .menu-button[data-i="5"]{transform:translate(-50%,-50%) rotate(-102deg) translateY(-28vmin) rotate(102deg);}
+    .menu-button[data-i="6"]{transform:translate(-50%,-50%) rotate(-51deg) translateY(-28vmin) rotate(51deg);}
+    .hero .menu-button { opacity:0; }
+    .hero:hover .menu-button { opacity:1; }
+  .hero.collapsed {
+      width: 14vmin; height: 14vmin;
+      position: fixed; top: 2rem; left: 2rem;
+      border-radius: 50%;
+      z-index: 10;
+    }
+    .hero.collapsed .hero-inner{ width:100%; height:100%; border-radius:50%; }
+    .hero.collapsed::after { display:none; }
+    .hero.collapsed .profile-image { width:12vmin; height:12vmin; background: #370be7;}
+    .hero.collapsed .profile-name { display:none; }
+    .hero.collapsed .circle-menu { display:grid; pointer-events:auto; }
+    .hero.collapsed .menu-button { opacity:1; font-size:10px; width:3.8rem; height:3.8rem; }
+    .hero.collapsed .menu-button[data-i="0"]{transform:translate(-50%,-50%) rotate(0deg) translateY(-18vmin) rotate(0deg);}
+    .hero.collapsed .menu-button[data-i="1"]{transform:translate(-50%,-50%) rotate(51deg) translateY(-18vmin) rotate(-51deg);}
+    .hero.collapsed .menu-button[data-i="2"]{transform:translate(-50%,-50%) rotate(102deg) translateY(-18vmin) rotate(-102deg);}
+    .hero.collapsed .menu-button[data-i="3"]{transform:translate(-50%,-50%) rotate(153deg) translateY(-18vmin) rotate(-153deg);}
+    .hero.collapsed .menu-button[data-i="4"]{transform:translate(-50%,-50%) rotate(-153deg) translateY(-18vmin) rotate(153deg);}
+    .hero.collapsed .menu-button[data-i="5"]{transform:translate(-50%,-50%) rotate(-102deg) translateY(-18vmin) rotate(102deg);}
+    .hero.collapsed .menu-button[data-i="6"]{transform:translate(-50%,-50%) rotate(-51deg) translateY(-18vmin) rotate(51deg);}
+    .content {
+      position:fixed; top:0; right:0; bottom:0; left:24vmin;
+      padding:3.2rem 3.2rem 3.2rem 2rem; z-index:7;
+      display:grid; grid-template-columns:1fr 80px;
+      gap:2.4rem; align-items:start; pointer-events:none;
+      opacity:0; transform:translateY(8px);
+      transition:all 420ms ease; background-color: #ffdbf7;
+    }
+    .content.open { pointer-events:auto; opacity:1; transform:none; background-color: #efbbd8;}
+    .dots { display:flex; flex-direction:column; gap:12px; align-items:center; padding-top:1rem; justify-self:end; }
+    .dot { width:12px; height:12px; padding:50%; border-radius:50%; background-color: #0a0e27; border:2px solid rgba(10, 3, 3, 0.984); cursor:pointer; position:relative; }
+    .dot.active { background:var(--accent); border-color:var(--accent); }
+    .page-card {
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
+      border-radius:20px; padding:28px; min-height:70vh;
+      box-shadow:0 12px 40px rgba(226, 230, 255, 0.6); overflow:auto;
+    }
+    h1,h2 { margin:0 0 12px 0; }
+    p { color:#d6e0ffcc; line-height:1.6; }
+    .qual-list { display:grid; gap:12px; }
+    .qual-item {
+      background:var(--glass); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.03);
+    }
+
+    /* Force all section text to black */
+.content, 
+.content h1, 
+.content h2, 
+.content p, 
+.content strong, 
+.content .skill-list, 
+.content .qual-meta, 
+.content .proj-item, 
+.content .meta, 
+.content a {
+    color: #000 !important;
+}
+
+
+    .qual-meta { color:var(--muted); font-size:13px; }
+    .skills-grid { display:grid; grid-template-columns:1fr; gap:18px; position:relative; max-width:600px; margin:0 auto; }
+    .skills-page { display:none; }
+    .skills-page.active { display:block; }
+    .pagination { display:flex; gap:10px; justify-content:center; margin-top:24px; align-items:center; }
+    .page-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all 300ms ease; border:none; padding:0; }
+    .page-dot.active { background:var(--accent); transform:scale(1.3); }
+    .page-dot:hover { background:rgba(255,255,255,0.4); transform:scale(1.15); }
+    .flip-card { perspective:1200px; }
+    .flip-inner {
+      position:relative; width:100%; height:200px;
+      transform-style:preserve-3d; transition:transform 700ms cubic-bezier(.16,.9,.3,1);
+    }
+    .flip-card:hover .flip-inner { transform:rotateY(180deg); }
+    .flip-face {
+      position:absolute; inset:0; border-radius:12px; padding:18px;
+      backface-visibility:hidden; border:1px solid rgba(255,255,255,0.04);
+      display:flex; flex-direction:column; justify-content:center;
+    }
+    .flip-front { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
+    .flip-back { background:linear-gradient(180deg, rgba(255,107,157,0.12), rgba(255,107,157,0.06)); transform:rotateY(180deg); }
+    .skill-title { font-weight:700; margin-bottom:6px; }
+    .skill-list { font-size:14px; color:#070b14; }
+    .proj-item {
+      padding:12px; border-radius:10px;
+      border:1px solid rgba(255,255,255,0.04);
+      background:var(--glass-2); margin-bottom:12px;
+    }
+    .meta { font-size:13px; color:var(--muted); }
+    a.link { color:var(--accent); text-decoration:none; }
+    .muted { color:var(--muted); }
+    @media (max-width:900px){
+      .content{left:22vmin;padding:1.6rem;grid-template-columns:1fr 56px;}
+      .hero{display:flex;align-items:center;justify-content:center;}
+      .hero:hover .hero-inner{width:48vmin;height:48vmin;}
+      .hero-inner{width:90vmin;height:90vmin;}
+      .hero.collapsed{width:11vmin;height:11vmin;}
+      .hero.collapsed .profile-image{width:9vmin;height:9vmin;background: #370be7}
+      .hero.collapsed .menu-button{width:2.8rem;height:2.8rem;font-size:8px;}
+      .hero.collapsed .menu-button[data-i="0"]{transform:translate(-50%,-50%) rotate(0deg) translateY(-11vmin) rotate(0deg);}
+      .hero.collapsed .menu-button[data-i="1"]{transform:translate(-50%,-50%) rotate(51deg) translateY(-11vmin) rotate(-51deg);}
+      .hero.collapsed .menu-button[data-i="2"]{transform:translate(-50%,-50%) rotate(102deg) translateY(-11vmin) rotate(-102deg);}
+      .hero.collapsed .menu-button[data-i="3"]{transform:translate(-50%,-50%) rotate(153deg) translateY(-11vmin) rotate(-153deg);}
+      .hero.collapsed .menu-button[data-i="4"]{transform:translate(-50%,-50%) rotate(-153deg) translateY(-11vmin) rotate(153deg);}
+      .hero.collapsed .menu-button[data-i="5"]{transform:translate(-50%,-50%) rotate(-102deg) translateY(-11vmin) rotate(102deg);}
+      .hero.collapsed .menu-button[data-i="6"]{transform:translate(-50%,-50%) rotate(-51deg) translateY(-11vmin) rotate(51deg);}
+    }
+    @media (max-width:640px){
+      .content{left:20vmin;grid-template-columns:1fr 48px;padding:14px;}
+      .hero{display:flex;}
+      .hero-inner{width:75vmin;height:75vmin;}
+      .menu-button{width:48px;height:48px;font-size:12px;}
+      .profile-name{font-size:4vmin;}
+      .hero.collapsed{width:12vmin;height:12vmin;}
+      .hero.collapsed .profile-image{width:10vmin;height:10vmin;background: #370be7;}
+      .hero.collapsed .menu-button{width:3rem;height:3rem;font-size:9px;}
+      .hero.collapsed .menu-button[data-i="0"]{transform:translate(-50%,-50%) rotate(0deg) translateY(-9.5vmin) rotate(0deg);}
+      .hero.collapsed .menu-button[data-i="1"]{transform:translate(-50%,-50%) rotate(51deg) translateY(-9.5vmin) rotate(-51deg);}
+      .hero.collapsed .menu-button[data-i="2"]{transform:translate(-50%,-50%) rotate(102deg) translateY(-9.5vmin) rotate(-102deg);}
+      .hero.collapsed .menu-button[data-i="3"]{transform:translate(-50%,-50%) rotate(153deg) translateY(-9.5vmin) rotate(-153deg);}
+      .hero.collapsed .menu-button[data-i="4"]{transform:translate(-50%,-50%) rotate(-153deg) translateY(-9.5vmin) rotate(153deg);}
+      .hero.collapsed .menu-button[data-i="5"]{transform:translate(-50%,-50%) rotate(-102deg) translateY(-9.5vmin) rotate(102deg);}
+      .hero.collapsed .menu-button[data-i="6"]{transform:translate(-50%,-50%) rotate(-51deg) translateY(-9.5vmin) rotate(51deg);}
+    }
+
+   .resume-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.resume-btn:hover {
+  background: #ff4c7f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+  .contact-icon {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background-color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  cursor:pointer;
+}
+
+.contact-icon img {
+  width:30px;
+  height:30px;
+}
+
+.contact-icon:hover {
+  transform: translateY(-5px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.25);
+}
+
+.contact-icons-bottom {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: absolute; /* Fix at bottom */
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+}
+
+
+
+  </style>
+</head>
+<body>
+<div class="app">
+  <div id="hero" class="hero" role="img" aria-label="Profile background">
+    <div class="hero-inner">
+      <div class="profile-container">
+        <img src="me.jpg"
+             alt="Ankitha D profile"
+             class="profile-image">
+        <div class="profile-name">Ankitha D</div>
+      </div>
+      <div class="circle-menu">
+        <div class="menu-items">
+          <button class="menu-button" data-i="0" data-section="about">About</button>
+          <button class="menu-button" data-i="1" data-section="qualification">Qualification</button>
+          <button class="menu-button" data-i="2" data-section="skills">Skills</button>
+          <button class="menu-button" data-i="3" data-section="projects">Projects</button>
+          <button class="menu-button" data-i="4" data-section="workshops">Workshops</button>
+          <button class="menu-button" data-i="5" data-section="languages">Language</button>
+          <button class="menu-button" data-i="6" data-section="contact">Contact</button>
+        </div>
+        <div id="menu-tooltip" style="
+    position:absolute;
+    padding: 4px 8px;
+    background: var(--accent);
+    color: #370be7;
+    font-size: 12px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+"></div>
+
+      </div>
+    </div>
+  </div>
+
+<!-- Resume Button (hidden initially) -->
+<a href="Ankitha_D_resume_1.pdf" target="_blank" id="resumeBtn" class="resume-btn" style="display:none;">Resume</a>
+
+  <main id="content" class="content" aria-live="polite">
+    <section class="page-card" id="page"></section>
+    <nav class="dots" id="dotsNav" aria-label="Section navigation">
+      <div class="dot" data-section="about" title="About"></div>
+      <div class="dot" data-section="qualification" title="Qualification"></div>
+      <div class="dot" data-section="skills" title="Skills"></div>
+      <div class="dot" data-section="projects" title="Projects"></div>
+      <div class="dot" data-section="workshops" title="Workshops"></div>
+      <div class="dot" data-section="languages" title="Languages"></div>
+      <div class="dot" data-section="contact" title="Contact"></div>
+    </nav>
+  </main>
+</div>
+
+<script>
+  const DATA = {
+    about: `Passionate and detail-oriented Computer Science student with a strong foundation in programming, web development, and AI. Enthusiastic about turning ideas into impactful applications, solving complex problems, and continuously learning new technologies. Thrives in collaborative environments and enjoys experimenting with projects that challenge and expand skills.`,
+    qualification: `
+      <div class="qual-item">
+        <strong>Global Academy Of Technology</strong>
+        <div class="qual-meta"> <strong>Bangalore, Karnataka</strong></div>
+        <div class="qual-meta">B.E. in Computer Science and Engineering &nbsp;•&nbsp; CGPA: 9.33<br>Nov 2022 – Present </div>
+      </div>
+      <div class="qual-item">
+        <strong>Ananth PU College</strong>
+        <div class="qual-meta"> <strong>Arsikere, Hassan</strong></div>
+        <div class="qual-meta">PUC Percentage: 93.3%<br>Aug 2020 – Jun 2022 \</div>
+      </div>
+      <div class="qual-item">
+        <strong>St. Mary's High School</strong>
+        <div class="qual-meta"> <strong>Arsikere, Hassan</strong></div>
+        <div class="qual-meta">SSLC Percentage: 90.8%<br>Jun 2017 – May 2020</div>
+      </div>
+    </div>`,
+    skills: `
+    <div class="skills-grid" text-align="center">
+      <div class="skills-page active">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Programming Languages</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">Python, C, Java</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Technologies</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">Data Science, Machine Learning</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Tools</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">Git, GitHub, VS Code, Unix/Linux</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Web Development</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">HTML, CSS, JavaScript, Bootstrap, React.js; Node.js, Express.js</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Databases</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">MySQL, MongoDB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Core Concepts</div>
+            </div>
+            <div class="flip-face flip-back">
+                <div class="skill-list">OOP, DBMS, DSA, OS, CN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="skills-page">
+        <div class="flip-card">
+          <div class="flip-inner">
+            <div class="flip-face flip-front">
+              <div class="skill-title">Soft Skills</div>
+            </div>
+            <div class="flip-face flip-back">
+              <div class="skill-list">Leadership, Problem-Solving, Communication, Adaptability, Teamwork</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pagination">
+      <button class="page-dot active" data-page="0"></button>
+      <button class="page-dot" data-page="1"></button>
+      <button class="page-dot" data-page="2"></button>
+      <button class="page-dot" data-page="3"></button>
+      <button class="page-dot" data-page="4"></button>
+      <button class="page-dot" data-page="5"></button>
+      <button class="page-dot" data-page="6"></button>
+    <div>
+    </div>`, 
+    projects: `
+    <div>
+      <div class="proj-item">
+        <strong>Recipe Sharing Platform — Mini Project</strong>
+        <div class="meta">Jan 2025 — Developed a full-stack web app for users to share/explore recipes, with secure login and video upload.<br>Technologies: HTML, CSS, JavaScript, Node.js, Express.js, MongoDB</div>
+      </div>
+      <div class="proj-item">
+        <strong>Smart-Agro: Unified Crop Monitoring — Major Project (Ongoing)</strong>
+        <div class="meta">Jul 2025 – Present — Building an ML-based system for crop disease detection, weather forecasting, and yield prediction.<br>Technologies: Python, TensorFlow, Scikit-learn, OpenCV, Pandas, Flask, Google Colab</div>
+      </div>
+    </div>`,
+    workshops: `
+      <div>
+        <strong>MERNStack Development — Hands-on Training</strong>
+        <div class="meta">Global Academy of Technology — Apr 2025</div>
+        <p>Completed project-based training on full-stack app development using MongoDB, Express.js, React.js, Node.js with focus on real-world web development.</p>
+      </div>`,
+    languages: `<div><p>English, Kannada</p></div>`,
+    contact: `
+<div style="display:flex; flex-direction:column; align-items:center; gap:24px;">
+
+  <!-- Contact icons horizontally -->
+  <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+    
+    <a href="tel:+919380653183" class="contact-icon" title="Phone">
+      <img src="phone.jpg" alt="Phone" />
+    </a>
+
+    <a href="mailto:ankithad90@gmail.com" class="contact-icon" title="Email">
+      <img src="email.png" alt="Email" />
+    </a>
+
+    <a href="https://www.linkedin.com/in/ankithad18" target="_blank" rel="noreferrer" class="contact-icon" title="LinkedIn">
+      <img src="linkedin.png" alt="LinkedIn" />
+    </a>
+
+    <a href="https://github.com/AnkithaD18" target="_blank" rel="noreferrer" class="contact-icon" title="GitHub">
+      <img src="github.png" alt="GitHub" />
+    </a>
+
+    <div class="contact-icon" title="Location">
+      <img src="location.jpg" alt="Location" />
+    </div>
+
+  </div>
+</div>
+`
+
+  };
+
+const hero = document.getElementById('hero');
+const menuButtons = Array.from(document.querySelectorAll('.menu-button'));
+const content = document.getElementById('content');
+const page = document.getElementById('page');
+const dots = Array.from(document.querySelectorAll('.dot'));
+const tooltip = document.getElementById('menu-tooltip');
+const resumeBtn = document.getElementById('resumeBtn');
+
+// Define all section names in order for screen-click cycling
+const sectionOrder = ['about', 'qualification', 'skills', 'projects', 'workshops', 'languages', 'contact'];
+let currentSectionIndex = -1;
+
+// Tooltip for circular menu buttons
+menuButtons.forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    const name = btn.dataset.section;
+    tooltip.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    const rect = btn.getBoundingClientRect();
+    tooltip.style.left = `${rect.right + 10}px`;
+    tooltip.style.top = `${rect.top + rect.height / 2 - tooltip.offsetHeight / 2}px`;
+    tooltip.style.opacity = 1;
+  });
+  btn.addEventListener('mouseleave', () => (tooltip.style.opacity = 0));
+});
+
+// Render section content
+function renderSection(name) {
+  let html = '';
+  switch (name) {
+    case 'about': html = `<h1>About Me</h1><p>${DATA.about}</p>`; break;
+    case 'qualification': html = `<h1>Qualification</h1>${DATA.qualification}`; break;
+    case 'skills': html = `<h1>Skills</h1>${DATA.skills}`; break;
+    case 'projects': html = `<h1>Projects</h1>${DATA.projects}`; break;
+    case 'workshops': html = `<h1>Workshops</h1>${DATA.workshops}`; break;
+    case 'languages': html = `<h1>Languages</h1>${DATA.languages}`; break;
+    case 'contact': html = `<h1>Contact</h1>${DATA.contact}`; break;
+    default: html = `<h1>Welcome</h1><p>Select a section from the circular menu or click the screen to navigate.</p>`;
+  }
+  page.innerHTML = html;
+}
+
+// Open a section by name
+function openSection(name) {
+  hero.classList.add('collapsed', 'opened');
+  content.classList.add('open');
+  renderSection(name);
+  dots.forEach(d => d.classList.toggle('active', d.dataset.section === name));
+  resumeBtn.style.display = 'block';
+  currentSectionIndex = sectionOrder.indexOf(name);
+}
+
+// Close hero to reset view
+function closeHero() {
+  hero.classList.remove('collapsed', 'opened');
+  content.classList.remove('open');
+  page.innerHTML = '';
+  dots.forEach(d => d.classList.remove('active'));
+  resumeBtn.style.display = 'none';
+  currentSectionIndex = -1;
+}
+
+// Click on menu button → open respective section
+menuButtons.forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    openSection(btn.dataset.section);
+  });
+});
+
+// Click on dot navigation → open section
+dots.forEach(d => {
+  d.addEventListener('click', e => {
+    e.stopPropagation();
+    openSection(d.dataset.section);
+  });
+});
+
+// Screen click → move to next section automatically
+document.addEventListener('click', e => {
+  const isButton = e.target.closest('.menu-button');
+  const isHero = e.target.closest('#hero');
+
+  // Ignore clicks on the circular menu itself
+  if (isButton || isHero) return;
+
+  // If nothing is open yet → open first section
+  if (currentSectionIndex === -1) {
+    openSection(sectionOrder[0]);
+  } else {
+    // Move to next section cyclically
+    currentSectionIndex = (currentSectionIndex + 1) % sectionOrder.length;
+    openSection(sectionOrder[currentSectionIndex]);
+  }
+});
+
+// Skill sub-pages (page dots)
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('page-dot')) {
+    const pageNum = parseInt(e.target.dataset.page);
+    const pages = document.querySelectorAll('.skills-page');
+    const dotButtons = document.querySelectorAll('.page-dot');
+    pages.forEach((p, i) => p.classList.toggle('active', i === pageNum));
+    dotButtons.forEach((d, i) => d.classList.toggle('active', i === pageNum));
+  }
+});
+
+renderSection('');
+</script>
+</body>
+</html>
